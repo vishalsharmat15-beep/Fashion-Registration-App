@@ -29,7 +29,6 @@ The application uses PostgreSQL on Amazon RDS. Database settings are supplied to
 
 - `Fashion-Register-App`: Java application, Maven modules, Dockerfile, and Jenkins pipeline.
 - `GitOps-Fashion-Signup-App`: Helm chart, deployment values, Deployment template, and LoadBalancer Service template.
-- Parent repository: links both repositories as Git submodules through `.gitmodules`.
 
 ## Delivery Flow
 
@@ -66,10 +65,6 @@ The Helm chart creates a Kubernetes Service with `type: LoadBalancer`, port `808
 
 # Architecture Overview
 
-## System Context
-
-The Fashion Signup App is a Java web application deployed to Amazon EKS. Application source and deployment configuration are maintained in separate Git repositories.
-
 ## End-to-End Flow
 
 ```mermaid
@@ -92,15 +87,6 @@ flowchart LR
     Metrics --> Grafana[Grafana]
 ```
 
-## Repository Boundaries
-
-### Application repository
-
-`Fashion-Register-App` contains the Java source, Maven modules, Dockerfile, web assets, tests, and Jenkinsfile.
-
-### GitOps repository
-
-`GitOps-Fashion-Signup-App` contains the Helm chart, deployment values, Deployment template, and Service template. It defines the desired Kubernetes state.
 
 ## Runtime Components
 
@@ -119,19 +105,6 @@ flowchart LR
 
 The Kubernetes Service receives external traffic on port `8080` and forwards it to application pods on their container port. The application reads `DB_URL`, `DB_USER`, and `DB_PASSWORD` from the `register-app-db` Secret and connects to PostgreSQL RDS.
 
-## Ownership Model
-
-- Jenkins owns CI and the GitOps commit.
-- GitHub stores source and desired deployment state.
-- Argo CD owns Git-to-cluster reconciliation.
-- Kubernetes owns scheduling, rollout, and Service routing.
-- RDS owns persistent relational data.
-
-# DevOps Tools and Code Guide
-
-## Purpose
-
-This document explains what each tool contributes and where its configuration lives. It is a component guide, not a second architecture narrative.
 
 ## Source and Build
 
@@ -186,25 +159,6 @@ The EC2 user-data scripts install the supporting tools:
 - Jenkins agent: Java, Git, Docker, SSH, and build dependencies
 - SonarQube host: PostgreSQL, Java 17, SonarQube, and its systemd service
 
-# Final Project Synopsis
-
-## Project Summary
-
-The Fashion Signup App is a Java web application delivered through a CI/CD and GitOps workflow on AWS. The implementation separates application source from Kubernetes deployment configuration and uses Git as the source of deployment intent.
-
-## Technology Stack
-
-- GitHub for source and GitOps repositories
-- Jenkins for CI automation
-- Maven and Java for build and tests
-- SonarQube for static analysis
-- Docker and Docker Hub for image delivery
-- Trivy for container vulnerability scanning
-- Helm for Kubernetes packaging
-- Argo CD for GitOps reconciliation
-- Amazon EKS for application orchestration
-- PostgreSQL RDS for persistent data
-- Prometheus and Grafana for monitoring
 
 ## Delivery Sequence
 
@@ -217,20 +171,8 @@ The Fashion Signup App is a Java web application delivered through a CI/CD and G
 7. Argo CD detects the GitOps commit and synchronizes EKS.
 8. Kubernetes rolls out the new pods behind a LoadBalancer Service.
 
-## Application Runtime
-
-The web application runs in Tomcat-based containers. Kubernetes maintains the requested replica count and routes traffic through a stable Service. Database connection values are injected from a Kubernetes Secret and point to PostgreSQL RDS.
-
-## Resulting Operating Model
-
-The pipeline provides a repeatable path from source change to running workload. Jenkins performs validation and delivery preparation; GitOps records the desired image version; Argo CD applies that version; Kubernetes manages runtime placement and rollout; monitoring provides operational visibility.
-
 
 # 04 Problem-Solving Notes
-
-## Purpose
-
-This document records the engineering decisions that shaped the final system. It focuses on design reasoning and lessons, not a chronological incident list.
 
 ## Repository and GitOps Design
 
@@ -260,10 +202,6 @@ The admin user list uses a deterministic ordering: newest `created_at` first, fo
 
 
 # 05 Issue Resolution Log
-
-## Purpose
-
-This document lists concrete project issues, their fixes, and the validation that confirmed each fix.
 
 ## Git Push Conflict
 
